@@ -1,0 +1,8 @@
+{
+	"name": "demo",
+	"api": "1.0.0",
+	"main": "dist/code.js",
+	"ui": "dist/ui.html",
+	"id": "Fudrqfk3xj4uZ4nnyBSrNd",
+	"editorType": ["figma"]
+}

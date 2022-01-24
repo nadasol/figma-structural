@@ -25,8 +25,9 @@ handleEvent('createPagesFromTemplate', template => {
 
 // Returns true if there is a page with the passed name
 handleEvent('doesPageExistByName', pageName => {
-  console.log('Page', pageName, ' does exist: ', root.children.some(page => page.name === pageName))
-  return root.children.some(page => page.name === pageName)
+  const pageExists = root.children.some(page => page.name === pageName)
+  console.log('Page', pageName, ' does exist: ', pageExists)
+  return pageExists
 });
 
 // WIP: Create a page with random number in name

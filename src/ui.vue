@@ -110,6 +110,10 @@ export default {
     handleEvent("setPages", pageNames => {
       this.pageNames = pageNames
     })
+
+    this.template.forEach((page, index) => {
+      this.template[index].exists = dispatch("doesPageExistByName", page.name)
+    })
   },
   methods: {
     createNode() {

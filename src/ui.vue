@@ -29,7 +29,21 @@ export default {
   data() {
     return {
       message: "",
-      pageNames: []
+      pageNames: [],
+      // Example result from loading a CSV file
+      template: [
+        { type: "P", name: "🔺 Cover" },
+        { type: "C", name: "Stakeholders" },
+        { type: "C", name: "Requirements" },
+        { type: "P", name: "🔹 Concept" },
+        { type: "C", name: "“Wireframes" },
+        { type: "C", name: "Prototypes" },
+        { type: "P", name: "🔸  UI" },
+        { type: "C", name: "Benchmarking" },
+        { type: "C", name: "Design Exploration" },
+        { type: "P", name: "✅  Handover" },
+        { type: "C", name: "Final Designs" }
+      ]
     };
   },
   mounted() {

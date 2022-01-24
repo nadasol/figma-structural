@@ -1,19 +1,52 @@
 <template>
   <div>
-    <button 
+    <!-- TEST Buttons -->
+    <button
       class="button button--primary"
       @click="createNode"
     >
-    Create Node
+    Create Page
+    </button>
+    <button
+      class="button button--primary"
+      @click="createPagesFromTemplate"
+    >
+    Create Pages From Template
+    </button>
+    <button
+      class="button button--primary"
+      @click="createPageAtIndex"
+    >
+    Create Page At Index
+    </button>
+    <button
+      class="button button--primary"
+      @click="removeAllPages"
+    >
+    Remove all Pages
+    </button>
+    <button
+      class="button button--primary"
+      @click="listPages"
+    >
+    List Pages
     </button>
     <p class="type type--pos-small-normal">
       {{message}}
-    </p> 
-    <ul v-if="pageNames">
-      <li v-for="name in pageNames" :key="name">
-        {{name}}
-      </li>
-    </ul>
+    </p>
+    <!-- DEBUG Output -->
+      pageNames:
+      <ul v-if="pageNames">
+        <li v-for="name in pageNames" :key="name">
+          <pre>{{name}}</pre>
+        </li>
+      </ul>
+      Template:
+      <ul v-if="template">
+        <li v-for="page in template" :key="page.name">
+          <pre>{{page.name}} {{doesPageExistByName(page.name)}}</pre>
+        </li>
+      </ul>
   </div>
 </template>
 
@@ -62,9 +95,22 @@ export default {
   },
   methods: {
     createNode() {
-      // This shows how the UI code can send messages to the main code.
-      // dispatch("createNode");
-      dispatch("getPages")
+      dispatch("createPage");
+    },
+    doesPageExistByName(pageName) {
+      dispatch("doesPageExistByName", pageName);
+    },
+    createPagesFromTemplate() {
+      dispatch("createPagesFromTemplate", this.template);
+    },
+    removeAllPages() {
+      dispatch("removeAllPages");
+    },
+    listPages() {
+      dispatch("getPages");
+    },
+    createPageAtIndex() {
+      dispatch("createPageAtIndex");
     }
   }
 };

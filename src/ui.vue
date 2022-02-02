@@ -1,5 +1,14 @@
 <template>
   <div>
+    <!-- LOAD CSV -->
+    <div>
+      <input ref="csv" type="file" name="csv">
+      <button type="button"
+        @click="load"
+      >
+        Load Pages
+      </button>
+    </div>
     <button class="button button--primary" @click="selectedTab = 1">Pages</button>
     <button class="button button--primary" @click="selectedTab = 2">Settings</button>
     <button class="button button--primary" @click="selectedTab = 3">Debug</button>

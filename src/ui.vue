@@ -69,6 +69,8 @@
 
 <script>
 import { dispatch, handleEvent } from "./uiMessageHandler";
+import _ from 'lodash';
+import Papa from 'papaparse';
 
 // Add these lines to import the interactive figma-ui components as needed.
 import "./figma-ui/js/selectMenu";
@@ -82,19 +84,7 @@ export default {
       pageNames: [],
       selectedTab: 1,
       // Example result from loading a CSV file
-      template: [
-        { type: "P", name: "🔺 Cover" },
-        { type: "C", name: "Stakeholders" },
-        { type: "C", name: "Requirements" },
-        { type: "P", name: "🔹 Concept" },
-        { type: "C", name: "“Wireframes" },
-        { type: "C", name: "Prototypes" },
-        { type: "P", name: "🔸  UI" },
-        { type: "C", name: "Benchmarking" },
-        { type: "C", name: "Design Exploration" },
-        { type: "P", name: "✅  Handover" },
-        { type: "C", name: "Final Designs" }
-      ]
+      template: null
     };
   },
   mounted() {
@@ -133,7 +123,24 @@ export default {
     },
     createPageAtIndex() {
       dispatch("createPageAtIndex");
-    }
+    },
+    load() {
+      this.readFile((output) => {
+          this.template = _.get(Papa.parse(output, { skipEmptyLines: true, header: true }), "data");
+      });
+    },
+    readFile(callback) {
+      let file = this.$refs.csv.files[0];
+      if (file) {
+          let reader = new FileReader();
+          reader.readAsText(file, "UTF-8");
+          reader.onload = function (evt) {
+              callback(evt.target.result);
+          };
+          reader.onerror = function () {
+          };
+      }
+    },
   }
 };
 </script>

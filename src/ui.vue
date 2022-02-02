@@ -93,11 +93,11 @@ export default {
     return {
       message: "",
       selectedTab: 1,
-      // Example result from loading a CSV file
+      // Template loaded from a CSV file. This is the static reference and should not be modified.
       template: null,
       // Actual current status of figma pages on the project. Updated when loading plugin, not realtime.
       figmaPages: [],
-      // Example result from loading a CSV file. This is the static reference and should not be modified.
+      // Example result from loading a CSV file
       // template: [
       //   { type: "P", name: "🔺 Cover" },
       //   { type: "C", name: "Stakeholders" },
@@ -130,9 +130,7 @@ export default {
 
     // Placeholder: Load template
 
-    // Compare template and existing pages
-    dispatch("syncTemplateToPages", this.template);
-    // Handle result from above dispatch
+    // Handle result from syncTemplateToPages dispatch
     handleEvent("syncComplete", result => {
       this.pageConfig = result
     })
@@ -156,7 +154,9 @@ export default {
     load() {
       this.readFile((output) => {
           this.template = _.get(Papa.parse(output, { skipEmptyLines: true, header: true }), "data");
+        dispatch("syncTemplateToPages", this.template);
       });
+      // Compare template and existing pages
     },
     readFile(callback) {
       let file = this.$refs.csv.files[0];

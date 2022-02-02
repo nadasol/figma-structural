@@ -14,10 +14,10 @@
     <button class="button button--primary" @click="selectedTab = 3">Debug</button>
     <!-- PAGES TAB -->
     <div v-show="selectedTab === 1">
-      <div v-if="template">
+      <div v-if="pageConfig">
         <ul>
-          <li v-for="page in template" :key="page.name">
-            <pre>{{page.name}} : {{page.exists}}</pre>
+          <li v-for="page in pageConfig" :key="page.name">
+            <pre>{{page.name}} : {{page.exists}} : {{typeof page.exists}}</pre>
           </li>
         </ul>
       </div>
@@ -54,24 +54,26 @@
       >
       Remove all Pages
       </button>
-      <button
+      <!-- <button
         class="button button--primary"
         @click="listPages"
       >
       List Pages
-      </button>
+      </button> -->
       <p class="type type--pos-small-normal">
         {{message}}
       </p>
       <!-- DEBUG Output -->
-        pageNames:
-        <ul v-if="pageNames">
-          <li v-for="name in pageNames" :key="name">
+        figmaPages:
+        <ul v-if="figmaPages">
+          <li v-for="name in figmaPages" :key="name">
             <pre>{{name}}</pre>
           </li>
         </ul>
         template:
         <pre>{{template}}</pre>
+        pageConfig:
+        <pre>{{pageConfig}}</pre>
     </div>
   </div>
 </template>
@@ -90,10 +92,27 @@ export default {
   data() {
     return {
       message: "",
-      pageNames: [],
       selectedTab: 1,
       // Example result from loading a CSV file
-      template: null
+      template: null,
+      // Actual current status of figma pages on the project. Updated when loading plugin, not realtime.
+      figmaPages: [],
+      // Example result from loading a CSV file. This is the static reference and should not be modified.
+      // template: [
+      //   { type: "P", name: "🔺 Cover" },
+      //   { type: "C", name: "Stakeholders" },
+      //   { type: "C", name: "Requirements" },
+      //   { type: "P", name: "🔹 Concept" },
+      //   { type: "C", name: "“Wireframes" },
+      //   { type: "C", name: "Prototypes" },
+      //   { type: "P", name: "🔸  UI" },
+      //   { type: "C", name: "Benchmarking" },
+      //   { type: "C", name: "Design Exploration" },
+      //   { type: "P", name: "✅  Handover" },
+      //   { type: "C", name: "Final Designs" }
+      // ],
+      // Combination object of template and figma pages. Lists all pages from template with additional information: whether the page exists, and whether it should be added.
+      pageConfig: []
     };
   },
   mounted() {
@@ -102,16 +121,20 @@ export default {
     window.iconInput.init();
     window.disclosure.init();
 
-    // The following shows how messages from the main code can be handled in the UI code.
-    handleEvent("pageCreated", nodeID => {
-      this.message = `Node ${nodeID} was created!`;
-    });
+    // Fetch current pages from project
+    dispatch("getPages");
+    // Handle result from above dispatch
     handleEvent("setPages", pageNames => {
-      this.pageNames = pageNames
+      this.figmaPages = pageNames
     })
 
-    this.template.forEach((page, index) => {
-      this.template[index].exists = dispatch("doesPageExistByName", page.name)
+    // Placeholder: Load template
+
+    // Compare template and existing pages
+    dispatch("syncTemplateToPages", this.template);
+    // Handle result from above dispatch
+    handleEvent("syncComplete", result => {
+      this.pageConfig = result
     })
   },
   methods: {
@@ -126,9 +149,6 @@ export default {
     },
     removeAllPages() {
       dispatch("removeAllPages");
-    },
-    listPages() {
-      dispatch("getPages");
     },
     createPageAtIndex() {
       dispatch("createPageAtIndex");

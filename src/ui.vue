@@ -15,11 +15,17 @@
     <!-- PAGES TAB -->
     <div v-show="selectedTab === 1">
       <div v-if="pageConfig">
-        <ul>
+        <form @submit.prevent="handleCreate(event)">
+          <ul>
           <li v-for="page in pageConfig" :key="page.name">
-            <pre>{{page.name}} : {{page.exists}} : {{typeof page.exists}}</pre>
+            <span>{{page.name}} : {{page.exists}} : {{typeof page.exists}}</span>
+            <input v-if="page.type ==='C' && page.exists" :value="page.name" name="page" type="checkbox">
+            <span v-else-if="page.type ==='C' && !page.exists">some icon</span>
           </li>
         </ul>
+        <input type="submit" value="create">
+        </form>
+        
       </div>
       <div v-else>There is no template.</div>
     </div>
@@ -170,6 +176,9 @@ export default {
           };
       }
     },
+    handleCreate(event) {
+      console.log("create button clicked")
+    }
   }
 };
 </script>

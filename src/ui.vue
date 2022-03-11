@@ -15,12 +15,12 @@
     <!-- PAGES TAB -->
     <div v-show="selectedTab === 1">
       <div v-if="pageConfig">
-        <form @submit.prevent="handleCreate(event)">
+        <form @submit.prevent="handleCreate()">
           <ul>
           <li v-for="page in pageConfig" :key="page.name">
             <span>{{page.name}} : {{page.exists}} : {{typeof page.exists}}</span>
-            <input v-if="page.type ==='C' && page.exists" :value="page.name" name="page" type="checkbox">
-            <span v-else-if="page.type ==='C' && !page.exists">some icon</span>
+            <input v-if="page.type ==='C' && !page.exists" :value="page.name" name="page" v-model="page.input" type="checkbox">
+            <span v-else-if="page.type ==='C' && page.exists">some icon</span>
           </li>
         </ul>
         <input type="submit" value="create">
@@ -71,11 +71,11 @@
       </p>
       <!-- DEBUG Output -->
         figmaPages:
-        <ul v-if="figmaPages">
+        <!-- <ul v-if="figmaPages">
           <li v-for="name in figmaPages" :key="name">
             <pre>{{name}}</pre>
           </li>
-        </ul>
+        </ul> -->
         template:
         <pre>{{template}}</pre>
         pageConfig:
@@ -142,8 +142,8 @@ export default {
     })
   },
   methods: {
-    createNode() {
-      dispatch("createPage");
+    createNode(config) {
+      dispatch("createPage", config);
     },
     doesPageExistByName(pageName) {
       dispatch("doesPageExistByName", pageName);
@@ -176,8 +176,11 @@ export default {
           };
       }
     },
-    handleCreate(event) {
-      console.log("create button clicked")
+    handleCreate() {
+      console.log('creating pages')
+      this.pageConfig.forEach((config) => {
+        this.createNode(config)
+      })
     }
   }
 };

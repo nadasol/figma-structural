@@ -12,14 +12,17 @@
     <button class="button button--primary" @click="selectedTab = 1">Pages</button>
     <button class="button button--primary" @click="selectedTab = 2">Settings</button>
     <button class="button button--primary" @click="selectedTab = 3">Debug</button>
+    <div class="divider"></div>
     <!-- PAGES TAB -->
     <div v-show="selectedTab === 1">
-      <div v-if="pageConfig">
-        <ul>
-          <li v-for="page in pageConfig" :key="page.name">
-            <pre>{{page.name}} : {{page.exists}} : {{typeof page.exists}}</pre>
-          </li>
-        </ul>
+      <div v-if="pageConfig" class="pages">
+        <div v-for="page in pageConfig" :key="page.name" class="page">
+          <label :class="[isParent(page) ? 'page__parent' : 'page__child', {'page-selected' : isSelected(page)}]">
+            <span class="text" v-if="!isParent(page)">{{childrenStyle}}</span>
+            <span class="text">{{page.name}}</span>
+          </label>
+          <input type="checkbox" class="checkbox page__checkbox" v-if="!isParent(page)">
+        </div>
       </div>
       <div v-else>There is no template.</div>
     </div>
@@ -112,7 +115,8 @@ export default {
       //   { type: "C", name: "Final Designs" }
       // ],
       // Combination object of template and figma pages. Lists all pages from template with additional information: whether the page exists, and whether it should be added.
-      pageConfig: []
+      pageConfig: [],
+      childrenStyle: "↳"
     };
   },
   mounted() {
@@ -151,6 +155,12 @@ export default {
     createPageAtIndex() {
       dispatch("createPageAtIndex");
     },
+    isParent(page) {
+      return page.type === 'P'
+    },
+    isSelected(page) {
+      return Math.random() < 0.5;
+    },
     load() {
       this.readFile((output) => {
           this.template = _.get(Papa.parse(output, { skipEmptyLines: true, header: true }), "data");
@@ -176,4 +186,40 @@ export default {
 
 <style lang='scss'>
 @import "./figma-ui/figma-plugin-ds";
+
+.pages {
+  margin: 16px;
+}
+
+.page {
+  display: flex;
+  justify-content: space-between;
+  margin: 16px;
+}
+
+.page-selected {
+  font-weight: bold;
+  color: red;
+}
+
+.text {
+  font-family: $font-stack;
+  font-size: $font-size-small;
+  line-height: $font-lineheight;
+  letter-spacing: $font-letterspacing-pos-small;
+}
+
+.page__parent {
+  font-weight: bold;
+  color: $figma-black-8;
+}
+
+.page__child {
+  color: $figma-black-3;
+  margin-left: 16px;
+}
+
+.page__checkbox {
+  height: unset;
+}
 </style>

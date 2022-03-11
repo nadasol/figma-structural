@@ -16,13 +16,17 @@
     <!-- PAGES TAB -->
     <div v-show="selectedTab === 1">
       <div v-if="pageConfig" class="pages">
-        <div v-for="page in pageConfig" :key="page.name" class="page">
-          <label :class="[isParent(page) ? 'page__parent' : 'page__child', {'page-selected' : isSelected(page)}]">
+        <form @submit.prevent="handleCreate()">
+          <div v-for="page in pageConfig" :key="page.name" class="page">
+            <label :class="[isParent(page) ? 'page__parent' : 'page__child', {'page-selected' : !isParent(page) && isSelected(page)}]">
             <span class="text" v-if="!isParent(page)">{{childrenStyle}}</span>
             <span class="text">{{page.name}}</span>
           </label>
-          <input type="checkbox" class="checkbox page__checkbox" v-if="!isParent(page)">
+          <input v-if="!isParent(page) && !page.exists" type="checkbox" class="checkbox page__checkbox" v-model="page.input">
+          <span v-else-if="!isParent(page) && page.exists">some icon</span>
         </div>
+        <input type="submit" value="create">
+        </form>
       </div>
       <div v-else>There is no template.</div>
     </div>
@@ -68,11 +72,11 @@
       </p>
       <!-- DEBUG Output -->
         figmaPages:
-        <ul v-if="figmaPages">
+        <!-- <ul v-if="figmaPages">
           <li v-for="name in figmaPages" :key="name">
             <pre>{{name}}</pre>
           </li>
-        </ul>
+        </ul> -->
         template:
         <pre>{{template}}</pre>
         pageConfig:
@@ -140,8 +144,8 @@ export default {
     })
   },
   methods: {
-    createNode() {
-      dispatch("createPage");
+    createNode(config) {
+      dispatch("createPage", config);
     },
     doesPageExistByName(pageName) {
       dispatch("doesPageExistByName", pageName);
@@ -159,7 +163,7 @@ export default {
       return page.type === 'P'
     },
     isSelected(page) {
-      return Math.random() < 0.5;
+      return page.input;
     },
     load() {
       this.readFile((output) => {
@@ -180,6 +184,12 @@ export default {
           };
       }
     },
+    handleCreate() {
+      console.log('creating pages')
+      this.pageConfig.forEach((config) => {
+        this.createNode(config)
+      })
+    }
   }
 };
 </script>
@@ -195,11 +205,6 @@ export default {
   display: flex;
   justify-content: space-between;
   margin: 16px;
-}
-
-.page-selected {
-  font-weight: bold;
-  color: red;
 }
 
 .text {
@@ -221,5 +226,9 @@ export default {
 
 .page__checkbox {
   height: unset;
+}
+
+.page-selected {
+  color: $figma-blue;
 }
 </style>

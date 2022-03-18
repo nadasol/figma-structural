@@ -147,6 +147,9 @@ export default {
     createNode(config) {
       dispatch("createPage", config);
     },
+    createNodes(configs){
+      dispatch("createPages", configs);
+    },
     doesPageExistByName(pageName) {
       dispatch("doesPageExistByName", pageName);
     },
@@ -185,10 +188,10 @@ export default {
       }
     },
     handleCreate() {
-      console.log('creating pages')
-      this.pageConfig.forEach((config) => {
-        this.createNode(config)
-      })
+      this.createNodes(this.pageConfig)
+      // this.pageConfig.forEach((config) => {
+      //   this.createNode(config)
+      // })
     }
   }
 };

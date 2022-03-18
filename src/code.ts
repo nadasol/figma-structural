@@ -28,7 +28,7 @@ handleEvent('createPagesFromTemplate', template => {
 // Get all currently existing pages on the figma project
 handleEvent('getPages', () => {
   console.log('root.children: ', root.children)
-	const pageNames = root.children.map(page => page.name);
+	const pageNames = getExistingPageNames();
 	dispatch('setPages', pageNames);
 });
 
@@ -49,13 +49,36 @@ function doesPageExistByName (pageName) {
   return pageExists
 }
 
-// WIP: Create a page with random number in name
-handleEvent('createPage', (config) => {
+// returns a list of page names
+function getExistingPageNames() {
+  return root.children.map(page => page.name);
+}
+
+// // WIP: Create a page with random number in name
+// handleEvent('createPage', (config) => {
+//   if ((config.type === "P" || config.input) && !doesPageExistByName(config.name)) {
+//     const page = figma.createPage();
+//     page.name = config.name;
+//   }
+// });
+
+function createPage(config,index) {
   if ((config.type === "P" || config.input) && !doesPageExistByName(config.name)) {
     const page = figma.createPage();
     page.name = config.name;
   }
-});
+}
+
+handleEvent('createPages', (configs) => {
+  const existingPageNames = getExistingPageNames()
+  const tempatePageNames = configs.map(page => page.name)
+  configs.forEach((config) => {
+        const index = getInsertIndex()
+        createPage(config,index)
+      })
+  console.log('these are the configs',configs.map(page => page.name))
+  console.log('these are the pages that exist',getExistingPageNames())
+})
 
 // WIP: Insert a page at index. Currently just a static index
 handleEvent('createPageAtIndex', () => {

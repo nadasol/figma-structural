@@ -1,7 +1,7 @@
 import { dispatch, handleEvent } from './codeMessageHandler';
 
 figma.showUI(__html__);
-figma.ui.resize(600,600)
+figma.ui.resize(305,600)
 
 const root = figma.root
 
@@ -37,6 +37,7 @@ handleEvent('syncTemplateToPages', template => {
   let result = template
   result.forEach((page, index) => {
     result[index].exists = doesPageExistByName(page.name)
+    result[index].input = false
   })
 	dispatch('syncComplete', result);
 });
@@ -49,9 +50,11 @@ function doesPageExistByName (pageName) {
 }
 
 // WIP: Create a page with random number in name
-handleEvent('createPage', () => {
-	const page = figma.createPage();
-	page.name = 'Test Page ' + Math.floor(Math.random() * 1000);;
+handleEvent('createPage', (config) => {
+  if ((config.type === "P" || config.input) && !doesPageExistByName(config.name)) {
+    const page = figma.createPage();
+    page.name = config.name;
+  }
 });
 
 // WIP: Insert a page at index. Currently just a static index

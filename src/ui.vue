@@ -12,14 +12,21 @@
     <button class="button button--primary" @click="selectedTab = 1">Pages</button>
     <button class="button button--primary" @click="selectedTab = 2">Settings</button>
     <button class="button button--primary" @click="selectedTab = 3">Debug</button>
+    <div class="divider"></div>
     <!-- PAGES TAB -->
     <div v-show="selectedTab === 1">
-      <div v-if="pageConfig">
-        <ul>
-          <li v-for="page in pageConfig" :key="page.name">
-            <pre>{{page.name}} : {{page.exists}} : {{typeof page.exists}}</pre>
-          </li>
-        </ul>
+      <div v-if="pageConfig" class="pages">
+        <form @submit.prevent="handleCreate()">
+          <div v-for="page in pageConfig" :key="page.name" class="page">
+            <label :class="[isParent(page) ? 'page__parent' : 'page__child', {'page-selected' : !isParent(page) && isSelected(page)}]">
+            <span class="text" v-if="!isParent(page)">{{childrenStyle}}</span>
+            <span class="text">{{page.name}}</span>
+          </label>
+          <input v-if="!isParent(page) && !page.exists" type="checkbox" class="checkbox page__checkbox" v-model="page.input">
+          <span v-else-if="!isParent(page) && page.exists">some icon</span>
+        </div>
+        <input type="submit" value="create">
+        </form>
       </div>
       <div v-else>There is no template.</div>
     </div>
@@ -65,11 +72,11 @@
       </p>
       <!-- DEBUG Output -->
         figmaPages:
-        <ul v-if="figmaPages">
+        <!-- <ul v-if="figmaPages">
           <li v-for="name in figmaPages" :key="name">
             <pre>{{name}}</pre>
           </li>
-        </ul>
+        </ul> -->
         template:
         <pre>{{template}}</pre>
         pageConfig:
@@ -112,7 +119,8 @@ export default {
       //   { type: "C", name: "Final Designs" }
       // ],
       // Combination object of template and figma pages. Lists all pages from template with additional information: whether the page exists, and whether it should be added.
-      pageConfig: []
+      pageConfig: [],
+      childrenStyle: "↳"
     };
   },
   mounted() {
@@ -136,8 +144,8 @@ export default {
     })
   },
   methods: {
-    createNode() {
-      dispatch("createPage");
+    createNode(config) {
+      dispatch("createPage", config);
     },
     doesPageExistByName(pageName) {
       dispatch("doesPageExistByName", pageName);
@@ -150,6 +158,12 @@ export default {
     },
     createPageAtIndex() {
       dispatch("createPageAtIndex");
+    },
+    isParent(page) {
+      return page.type === 'P'
+    },
+    isSelected(page) {
+      return page.input;
     },
     load() {
       this.readFile((output) => {
@@ -170,10 +184,51 @@ export default {
           };
       }
     },
+    handleCreate() {
+      console.log('creating pages')
+      this.pageConfig.forEach((config) => {
+        this.createNode(config)
+      })
+    }
   }
 };
 </script>
 
 <style lang='scss'>
 @import "./figma-ui/figma-plugin-ds";
+
+.pages {
+  margin: 16px;
+}
+
+.page {
+  display: flex;
+  justify-content: space-between;
+  margin: 16px;
+}
+
+.text {
+  font-family: $font-stack;
+  font-size: $font-size-small;
+  line-height: $font-lineheight;
+  letter-spacing: $font-letterspacing-pos-small;
+}
+
+.page__parent {
+  font-weight: bold;
+  color: $figma-black-8;
+}
+
+.page__child {
+  color: $figma-black-3;
+  margin-left: 16px;
+}
+
+.page__checkbox {
+  height: unset;
+}
+
+.page-selected {
+  color: $figma-blue;
+}
 </style>

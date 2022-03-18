@@ -1,21 +1,16 @@
 <template>
   <div>
     <!-- LOAD CSV -->
-    <div>
-      <input ref="csv" type="file" name="csv">
-      <button type="button"
-        @click="load"
-      >
-        Load Pages
-      </button>
+    <div class="section-title">Structural</div>
+    <div class="navigation">
+      <button  class="navigation--tab" :class="{'navigation--tab-selected' : selectedTab === 1}" @click="selectedTab = 1">Pages</button>
+      <button class="navigation--tab" :class="{'navigation--tab-selected' : selectedTab === 2}" @click="selectedTab = 2">Settings</button>
+      <button class="navigation--tab" :class="{'navigation--tab-selected' : selectedTab === 3}" @click="selectedTab = 3">Debug</button>
     </div>
-    <button class="button button--primary" @click="selectedTab = 1">Pages</button>
-    <button class="button button--primary" @click="selectedTab = 2">Settings</button>
-    <button class="button button--primary" @click="selectedTab = 3">Debug</button>
     <div class="divider"></div>
     <!-- PAGES TAB -->
     <div v-show="selectedTab === 1">
-      <div v-if="pageConfig" class="pages">
+      <div v-if="pageConfig" class="container">
         <form @submit.prevent="handleCreate()">
           <div v-for="page in pageConfig" :key="page.name" class="page">
             <label :class="[isParent(page) ? 'page__parent' : 'page__child', {'page-selected' : !isParent(page) && isSelected(page)}]">
@@ -25,14 +20,23 @@
           <input v-if="!isParent(page) && !page.exists" type="checkbox" class="checkbox page__checkbox" v-model="page.input">
           <span v-else-if="!isParent(page) && page.exists"><img src="../assets/checkmark.svg" /></span>
         </div>
-        <input type="submit" value="create">
+        <button type="button" class="button button-left button--secondary">Reset</button>
+        <input type="submit" value="Create" class="button button-right button--primary">
         </form>
       </div>
       <div v-else>There is no template.</div>
     </div>
 
     <!-- SETTINGS TAB -->
-    <div v-show="selectedTab === 2"></div>
+    <div v-show="selectedTab === 2" class="container">
+      <div>
+        <input ref="csv" type="file" name="csv">
+        <button type="button" class="button button-left button--secondary">Reset</button>
+        <button type="button" class="button button-right button--primary" @click="load">
+          Update
+        </button>
+      </div>
+    </div>
 
     <!-- DEBUG TAB -->
     <div v-show="selectedTab === 3">
@@ -197,7 +201,7 @@ export default {
 <style lang='scss'>
 @import "./figma-ui/figma-plugin-ds";
 
-.pages {
+.container {
   margin: 16px;
 }
 
@@ -230,5 +234,33 @@ export default {
 
 .page-selected {
   color: $figma-blue;
+}
+
+.button-left {
+  float: left
+}
+
+.button-right {
+  float: right
+}
+
+.navigation--tab {
+  all: unset;
+  cursor: pointer;
+
+  font-family: 'Inter';
+  font-style: normal;
+  font-weight: 500;
+  font-size: 11px;
+  line-height: 16px;
+  align-items: center;
+  letter-spacing: 0.005em;
+  margin: 12px 8px;
+  color: rgba(0, 0, 0, 0.3);
+}
+
+.navigation--tab-selected {
+  font-weight: 600;
+  color: rgba(0, 0, 0, 0.8);
 }
 </style>

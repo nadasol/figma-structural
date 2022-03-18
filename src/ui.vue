@@ -23,7 +23,7 @@
             <span class="text">{{page.name}}</span>
           </label>
           <input v-if="!isParent(page) && !page.exists" type="checkbox" class="checkbox page__checkbox" v-model="page.input">
-          <span v-else-if="!isParent(page) && page.exists">some icon</span>
+          <span v-else-if="!isParent(page) && page.exists"><img src="../assets/checkmark.svg" /></span>
         </div>
         <input type="submit" value="create">
         </form>

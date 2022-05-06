@@ -32,7 +32,7 @@
       <div>
         <input ref="csv" type="file" name="csv">
         <button type="button" class="button button-left button--secondary">Reset</button>
-        <button type="button" class="button button-right button--primary" @click="load">
+        <button type="button" class="button button-right button--primary" @click="openTab(1); load();">
           Update
         </button>
       </div>
@@ -168,6 +168,10 @@ export default {
     },
     isSelected(page) {
       return page.input;
+    },
+    openTab(tabIndex) {
+      console.log('Opening tab ', tabIndex)
+      this.selectedTab = tabIndex
     },
     load() {
       this.readFile((output) => {

@@ -14,7 +14,7 @@
         <form @submit.prevent="handleCreate()">
           <div v-for="page in pageConfig" :key="page.name" class="page">
             <label :class="[isParent(page) ? 'page__parent' : 'page__child', {'page-selected' : !isParent(page) && isSelected(page)}]">
-            <span class="text" v-if="!isParent(page)">{{childrenStyle}}</span>
+            <span class="text" v-if="!isParent(page)">{{childrenPrefix}}</span>
             <span class="text">{{page.name}}</span>
           </label>
           <input v-if="!isParent(page) && !page.exists" type="checkbox" class="checkbox page__checkbox" v-model="page.input">
@@ -30,7 +30,13 @@
     <!-- SETTINGS TAB -->
     <div v-show="selectedTab === 2" class="container">
       <div>
+        Template URL
         <input ref="csv" type="file" name="csv">
+        Children Style
+        <div v-for="style in childrenStyles" :key="style.title" class="">
+          <input type="checkbox" class="checkbox page__checkbox" v-model="style.selected">
+          <label>{{style.title}}</label>
+        </div>
         <button type="button" class="button button-left button--secondary">Reset</button>
         <button type="button" class="button button-right button--primary" @click="openTab(1); load();">
           Update
@@ -124,7 +130,10 @@ export default {
       // ],
       // Combination object of template and figma pages. Lists all pages from template with additional information: whether the page exists, and whether it should be added.
       pageConfig: [],
-      childrenStyle: "↳"
+      childrenStyles: [
+        {title: "Add ↳", prefix: "↳", priority: 0, selected: false},
+        {title: "Include extra spaces", prefix: "    ", priority: 1, selected: false},
+      ],
     };
   },
   mounted() {
@@ -146,6 +155,15 @@ export default {
     handleEvent("syncComplete", result => {
       this.pageConfig = result
     })
+  },
+  computed: {
+    // Calculate prefix of children pages
+    childrenPrefix() {
+      let prefix = ""
+      this.childrenStyles.sort((a, b) => (a.priority - b.priority)) // sort by priority
+      this.childrenStyles.forEach(style => {if (style.selected) prefix = style.prefix + prefix} ) //prepend prefix
+      return prefix
+    }
   },
   methods: {
     createNode(config) {

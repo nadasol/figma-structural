@@ -14,7 +14,6 @@
         <form @submit.prevent="handleCreate()">
           <div v-for="page in pageConfig" :key="page.name" class="page">
             <label :class="[isParent(page) ? 'page__parent' : 'page__child', {'page-selected' : !isParent(page) && isSelected(page)}]">
-            <span class="text" v-if="!isParent(page)">{{childrenPrefix}}</span>
             <span class="text">{{page.name}}</span>
           </label>
           <input v-if="!isParent(page) && !page.exists" type="checkbox" class="checkbox page__checkbox" v-model="page.input">
@@ -130,8 +129,9 @@ export default {
       // ],
       // Combination object of template and figma pages. Lists all pages from template with additional information: whether the page exists, and whether it should be added.
       pageConfig: [],
+      // Possible prefixes for child pages. If multiple selected, are added according to priority (higher priority followed by lower priority)
       childrenStyles: [
-        {title: "Add ↳", prefix: "↳", priority: 0, selected: false},
+        {title: "Add ↳", prefix: "↳ ", priority: 0, selected: false},
         {title: "Include extra spaces", prefix: "    ", priority: 1, selected: false},
       ],
     };
@@ -149,15 +149,13 @@ export default {
       this.figmaPages = pageNames
     })
 
-    // Placeholder: Load template
-
     // Handle result from syncTemplateToPages dispatch
     handleEvent("syncComplete", result => {
       this.pageConfig = result
     })
   },
   computed: {
-    // Calculate prefix of children pages
+    // Calculate prefix of child pages
     childrenPrefix() {
       let prefix = ""
       this.childrenStyles.sort((a, b) => (a.priority - b.priority)) // sort by priority
@@ -194,7 +192,7 @@ export default {
     load() {
       this.readFile((output) => {
           this.template = _.get(Papa.parse(output, { skipEmptyLines: true, header: true }), "data");
-        dispatch("syncTemplateToPages", this.template);
+        dispatch("syncTemplateToPages", { template: this.template, childrenPrefix: this.childrenPrefix});
       });
       // Compare template and existing pages
     },

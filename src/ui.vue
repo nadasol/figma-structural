@@ -30,12 +30,12 @@
     <!-- SETTINGS TAB -->
     <div v-show="selectedTab === 2" class="container">
       <div>
-        Template URL
+        <p class="section-title">Template URL</p>
         <input ref="csv" type="file" name="csv">
-        Children Style
-        <div v-for="style in childrenStyles" :key="style.title" class="">
+        <p class="section-title">Children Style</p>
+        <div v-for="style in childrenStyles" :key="style.title" class="page">
           <input type="checkbox" class="checkbox page__checkbox" v-model="style.selected">
-          <label>{{style.title}}</label>
+          <label class="text">{{style.title}}</label>
         </div>
         <button type="button" class="button button-left button--secondary">Reset</button>
         <button type="button" class="button button-right button--primary" @click="openTab(1); load();">

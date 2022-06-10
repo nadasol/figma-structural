@@ -2,30 +2,44 @@
   <div>
     <!-- LOAD CSV -->
     <div>
-      <input ref="csv" type="file" name="csv">
-      <button type="button"
-        @click="load"
-      >
-        Load Pages
-      </button>
+      <input ref="csv" type="file" name="csv" />
+      <button type="button" @click="load">Load Pages</button>
     </div>
-    <button class="button button--primary" @click="selectedTab = 1">Pages</button>
-    <button class="button button--primary" @click="selectedTab = 2">Settings</button>
-    <button class="button button--primary" @click="selectedTab = 3">Debug</button>
+    <button class="button button--primary" @click="selectedTab = 1">
+      Pages
+    </button>
+    <button class="button button--primary" @click="selectedTab = 2">
+      Settings
+    </button>
+    <button class="button button--primary" @click="selectedTab = 3">
+      Debug
+    </button>
     <div class="divider"></div>
     <!-- PAGES TAB -->
     <div v-show="selectedTab === 1">
       <div v-if="pageConfig" class="pages">
         <form @submit.prevent="handleCreate()">
           <div v-for="page in pageConfig" :key="page.name" class="page">
-            <label :class="[isParent(page) ? 'page__parent' : 'page__child', {'page-selected' : !isParent(page) && isSelected(page)}]">
-            <span class="text" v-if="!isParent(page)">{{childrenStyle}}</span>
-            <span class="text">{{page.name}}</span>
-          </label>
-          <input v-if="!isParent(page) && !page.exists" type="checkbox" class="checkbox page__checkbox" v-model="page.input">
-          <span v-else-if="!isParent(page) && page.exists">some icon</span>
-        </div>
-        <input type="submit" value="create">
+            <label
+              :class="[
+                isParent(page) ? 'page__parent' : 'page__child',
+                { 'page-selected': !isParent(page) && isSelected(page) },
+              ]"
+            >
+              <span class="text" v-if="!isParent(page)">{{
+                childrenStyle
+              }}</span>
+              <span class="text">{{ page.name }}</span>
+            </label>
+            <input
+              v-if="!isParent(page) && !page.exists"
+              type="checkbox"
+              class="checkbox page__checkbox"
+              v-model="page.input"
+            />
+            <span v-else-if="!isParent(page) && page.exists">some icon</span>
+          </div>
+          <input type="submit" value="create" />
         </form>
       </div>
       <div v-else>There is no template.</div>
@@ -37,29 +51,17 @@
     <!-- DEBUG TAB -->
     <div v-show="selectedTab === 3">
       <!-- TEST Buttons -->
-      <button
-        class="button button--primary"
-        @click="createNode"
-      >
-      Create Page
+      <button class="button button--primary" @click="createNode">
+        Create Page
       </button>
-      <button
-        class="button button--primary"
-        @click="createPagesFromTemplate"
-      >
-      Create Pages From Template
+      <button class="button button--primary" @click="createPagesFromTemplate">
+        Create Pages From Template
       </button>
-      <button
-        class="button button--primary"
-        @click="createPageAtIndex"
-      >
-      Create Page At Index
+      <button class="button button--primary" @click="createPageAtIndex">
+        Create Page At Index
       </button>
-      <button
-        class="button button--primary"
-        @click="removeAllPages"
-      >
-      Remove all Pages
+      <button class="button button--primary" @click="removeAllPages">
+        Remove all Pages
       </button>
       <!-- <button
         class="button button--primary"
@@ -68,27 +70,27 @@
       List Pages
       </button> -->
       <p class="type type--pos-small-normal">
-        {{message}}
+        {{ message }}
       </p>
       <!-- DEBUG Output -->
-        figmaPages:
-        <!-- <ul v-if="figmaPages">
+      figmaPages:
+      <!-- <ul v-if="figmaPages">
           <li v-for="name in figmaPages" :key="name">
             <pre>{{name}}</pre>
           </li>
         </ul> -->
-        template:
-        <pre>{{template}}</pre>
-        pageConfig:
-        <pre>{{pageConfig}}</pre>
+      template:
+      <pre>{{ template }}</pre>
+      pageConfig:
+      <pre>{{ pageConfig }}</pre>
     </div>
   </div>
 </template>
 
 <script>
 import { dispatch, handleEvent } from "./uiMessageHandler";
-import _ from 'lodash';
-import Papa from 'papaparse';
+import _ from "lodash";
+import Papa from "papaparse";
 
 // Add these lines to import the interactive figma-ui components as needed.
 import "./figma-ui/js/selectMenu";
@@ -120,7 +122,7 @@ export default {
       // ],
       // Combination object of template and figma pages. Lists all pages from template with additional information: whether the page exists, and whether it should be added.
       pageConfig: [],
-      childrenStyle: "↳"
+      childrenStyle: "↳",
     };
   },
   mounted() {
@@ -132,22 +134,22 @@ export default {
     // Fetch current pages from project
     dispatch("getPages");
     // Handle result from above dispatch
-    handleEvent("setPages", pageNames => {
-      this.figmaPages = pageNames
-    })
+    handleEvent("setPages", (pageNames) => {
+      this.figmaPages = pageNames;
+    });
 
     // Placeholder: Load template
 
     // Handle result from syncTemplateToPages dispatch
-    handleEvent("syncComplete", result => {
-      this.pageConfig = result
-    })
+    handleEvent("syncComplete", (config) => {
+      this.pageConfig = config;
+    });
   },
   methods: {
     createNode(config) {
       dispatch("createPage", config);
     },
-    createNodes(configs){
+    createNodes(configs) {
       dispatch("createPages", configs);
     },
     doesPageExistByName(pageName) {
@@ -163,14 +165,17 @@ export default {
       dispatch("createPageAtIndex");
     },
     isParent(page) {
-      return page.type === 'P'
+      return page.type === "P";
     },
     isSelected(page) {
       return page.input;
     },
     load() {
       this.readFile((output) => {
-          this.template = _.get(Papa.parse(output, { skipEmptyLines: true, header: true }), "data");
+        this.template = _.get(
+          Papa.parse(output, { skipEmptyLines: true, header: true }),
+          "data"
+        );
         dispatch("syncTemplateToPages", this.template);
       });
       // Compare template and existing pages
@@ -178,26 +183,22 @@ export default {
     readFile(callback) {
       let file = this.$refs.csv.files[0];
       if (file) {
-          let reader = new FileReader();
-          reader.readAsText(file, "UTF-8");
-          reader.onload = function (evt) {
-              callback(evt.target.result);
-          };
-          reader.onerror = function () {
-          };
+        let reader = new FileReader();
+        reader.readAsText(file, "UTF-8");
+        reader.onload = function (evt) {
+          callback(evt.target.result);
+        };
+        reader.onerror = function () {};
       }
     },
     handleCreate() {
-      this.createNodes(this.pageConfig)
-      // this.pageConfig.forEach((config) => {
-      //   this.createNode(config)
-      // })
-    }
-  }
+      this.createNodes(this.pageConfig);
+    },
+  },
 };
 </script>
 
-<style lang='scss'>
+<style lang="scss">
 @import "./figma-ui/figma-plugin-ds";
 
 .pages {

@@ -33,9 +33,10 @@ handleEvent('getPages', () => {
 });
 
 // Returns an extended template, with the property "exists" added
-handleEvent('syncTemplateToPages', template => {
-  let result = template
+handleEvent('syncTemplateToPages', data => {
+  let result = data.template
   result.forEach((page, index) => {
+    if (result[index].type === 'C') result[index].name = data.childrenPrefix + result[index].name
     result[index].exists = doesPageExistByName(page.name)
     result[index].input = false
   })

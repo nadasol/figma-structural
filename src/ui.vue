@@ -1,38 +1,47 @@
 <template>
   <div>
     <!-- LOAD CSV -->
-    <div>
-      <input ref="csv" type="file" name="csv">
-      <button type="button"
-        @click="load"
-      >
-        Load Pages
-      </button>
+    <div class="section-title">Structural</div>
+    <div class="navigation">
+      <button  class="navigation--tab" :class="{'navigation--tab-selected' : selectedTab === 1}" @click="selectedTab = 1">Pages</button>
+      <button class="navigation--tab" :class="{'navigation--tab-selected' : selectedTab === 2}" @click="selectedTab = 2">Settings</button>
+      <button class="navigation--tab" :class="{'navigation--tab-selected' : selectedTab === 3}" @click="selectedTab = 3">Debug</button>
     </div>
-    <button class="button button--primary" @click="selectedTab = 1">Pages</button>
-    <button class="button button--primary" @click="selectedTab = 2">Settings</button>
-    <button class="button button--primary" @click="selectedTab = 3">Debug</button>
     <div class="divider"></div>
     <!-- PAGES TAB -->
     <div v-show="selectedTab === 1">
-      <div v-if="pageConfig" class="pages">
+      <div v-if="pageConfig" class="container">
         <form @submit.prevent="handleCreate()">
           <div v-for="page in pageConfig" :key="page.name" class="page">
             <label :class="[isParent(page) ? 'page__parent' : 'page__child', {'page-selected' : !isParent(page) && isSelected(page)}]">
-            <span class="text" v-if="!isParent(page)">{{childrenStyle}}</span>
             <span class="text">{{page.name}}</span>
           </label>
           <input v-if="!isParent(page) && !page.exists" type="checkbox" class="checkbox page__checkbox" v-model="page.input">
-          <span v-else-if="!isParent(page) && page.exists">some icon</span>
+          <span v-else-if="!isParent(page) && page.exists"><img src="../assets/checkmark.svg" /></span>
         </div>
-        <input type="submit" value="create">
+        <button type="button" class="button button-left button--secondary">Reset</button>
+        <input type="submit" value="Create" class="button button-right button--primary">
         </form>
       </div>
       <div v-else>There is no template.</div>
     </div>
 
     <!-- SETTINGS TAB -->
-    <div v-show="selectedTab === 2"></div>
+    <div v-show="selectedTab === 2" class="container">
+      <div>
+        <p class="section-title">Template URL</p>
+        <input ref="csv" type="file" name="csv">
+        <p class="section-title">Children Style</p>
+        <div v-for="style in childrenStyles" :key="style.title" class="page">
+          <input type="checkbox" class="checkbox page__checkbox" v-model="style.selected">
+          <label class="text">{{style.title}}</label>
+        </div>
+        <button type="button" class="button button-left button--secondary">Reset</button>
+        <button type="button" class="button button-right button--primary" @click="openTab(1); load();">
+          Update
+        </button>
+      </div>
+    </div>
 
     <!-- DEBUG TAB -->
     <div v-show="selectedTab === 3">
@@ -120,7 +129,11 @@ export default {
       // ],
       // Combination object of template and figma pages. Lists all pages from template with additional information: whether the page exists, and whether it should be added.
       pageConfig: [],
-      childrenStyle: "↳"
+      // Possible prefixes for child pages. If multiple selected, are added according to priority (higher priority followed by lower priority)
+      childrenStyles: [
+        {title: "Add ↳", prefix: "↳ ", priority: 0, selected: false},
+        {title: "Include extra spaces", prefix: "    ", priority: 1, selected: false},
+      ],
     };
   },
   mounted() {
@@ -136,12 +149,19 @@ export default {
       this.figmaPages = pageNames
     })
 
-    // Placeholder: Load template
-
     // Handle result from syncTemplateToPages dispatch
     handleEvent("syncComplete", result => {
       this.pageConfig = result
     })
+  },
+  computed: {
+    // Calculate prefix of child pages
+    childrenPrefix() {
+      let prefix = ""
+      this.childrenStyles.sort((a, b) => (a.priority - b.priority)) // sort by priority
+      this.childrenStyles.forEach(style => {if (style.selected) prefix = style.prefix + prefix} ) //prepend prefix
+      return prefix
+    }
   },
   methods: {
     createNode(config) {
@@ -165,10 +185,14 @@ export default {
     isSelected(page) {
       return page.input;
     },
+    openTab(tabIndex) {
+      console.log('Opening tab ', tabIndex)
+      this.selectedTab = tabIndex
+    },
     load() {
       this.readFile((output) => {
           this.template = _.get(Papa.parse(output, { skipEmptyLines: true, header: true }), "data");
-        dispatch("syncTemplateToPages", this.template);
+        dispatch("syncTemplateToPages", { template: this.template, childrenPrefix: this.childrenPrefix});
       });
       // Compare template and existing pages
     },
@@ -197,7 +221,7 @@ export default {
 <style lang='scss'>
 @import "./figma-ui/figma-plugin-ds";
 
-.pages {
+.container {
   margin: 16px;
 }
 
@@ -230,5 +254,33 @@ export default {
 
 .page-selected {
   color: $figma-blue;
+}
+
+.button-left {
+  float: left
+}
+
+.button-right {
+  float: right
+}
+
+.navigation--tab {
+  all: unset;
+  cursor: pointer;
+
+  font-family: 'Inter';
+  font-style: normal;
+  font-weight: 500;
+  font-size: 11px;
+  line-height: 16px;
+  align-items: center;
+  letter-spacing: 0.005em;
+  margin: 12px 8px;
+  color: rgba(0, 0, 0, 0.3);
+}
+
+.navigation--tab-selected {
+  font-weight: 600;
+  color: rgba(0, 0, 0, 0.8);
 }
 </style>

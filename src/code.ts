@@ -85,10 +85,12 @@ handleEvent("getPages", () => {
 });
 
 // Returns an extended template, with the property "exists" added
-handleEvent("syncTemplateToPages", (template) => {
+handleEvent("syncTemplateToPages", (data) => {
   let currentParent;
-  let configs = template;
+  let configs = data.template;
   configs.forEach((page, index) => {
+    if (configs[index].type === PageTypes.Child)
+      configs[index].name = data.childrenPrefix + configs[index].name;
     if (page.type === PageTypes.Parent) {
       currentParent = page.name;
       configs[index].parent = null;

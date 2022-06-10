@@ -49,7 +49,9 @@
               ><img src="../assets/checkmark.svg"
             /></span>
           </div>
-          <button type="button" class="button button-left button--secondary">
+          <button type="button" class="button button-left button--secondary" @click="
+            resetPagesInput()
+          ">
             Reset
           </button>
           <input
@@ -76,7 +78,9 @@
           />
           <label class="text">{{ style.title }}</label>
         </div>
-        <button type="button" class="button button-left button--secondary">
+        <button type="button" class="button button-left button--secondary" @click="
+            resetSettingsInput()
+          ">
           Reset
         </button>
         <button
@@ -263,6 +267,15 @@ export default {
     handleCreate() {
       this.createNodes(this.pageConfig);
     },
+    // Clear checkboxes on Pages Tab
+    resetPagesInput() {
+      this.pageConfig.forEach(page => page.input = false)
+    },
+    // Empty file input and clear checkboxes on Settings Tab
+    resetSettingsInput() {
+      this.$refs.csv.value = ''
+      this.childrenStyles.forEach(style => style.selected = false)
+    }
   },
 };
 </script>
